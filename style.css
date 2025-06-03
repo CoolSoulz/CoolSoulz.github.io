@@ -6,6 +6,7 @@ h1 {
     font-family: "Comic Sans MS", serif;
     font-size: 25px;
     font-weight: lighter
+    text-align: center;
 }
 h2 {
     color: gold;
@@ -29,4 +30,9 @@ h3 {
     font-family: "JetBrains Mono", sans-serif;
     font-size: 20px;
     text-decoration-thickness: auto;
+}
+article {
+    color: azure;
+    font-family: "Comic Sans MS", serif;
+    font-size: 18px;
 }
