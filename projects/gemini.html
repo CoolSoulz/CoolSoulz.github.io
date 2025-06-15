@@ -6,35 +6,51 @@
 <body>
 <h1>Ask Gemini anything.....</h1>
 
-<form onsubmit="askGemini(); return false;">
-  <textarea id="input" rows="5" cols="60" placeholder="Type your question here..."></textarea><br>
-  <button type="submit">Send</button>
+<form id="geminiForm">
+  <textarea id="userInput" rows="5" cols="50" placeholder="Type your question here..."></textarea><br>
+  <button type="submit">Ask</button>
 </form>
 
-<pre id="output">Gemini will respond here...</pre>
+<h2>Chatlog:</h2>
+<div id="chatLog"></div>
 
 <script>
-  async function askGemini() {
-    const input = document.getElementById("input").value;
-    const output = document.getElementById("output");
-    output.textContent = "Thinking...";
+  const form = document.getElementById('geminiForm');
+  const input = document.getElementById('userInput');
+  const chatLog = document.getElementById('chatLog');
 
-    try {
-      const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyC3HwCC56LJq_z_d-mlzcpAGgXpRmSk0QI", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: input }] }]
-        })
-      });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-      const data = await res.json();
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[no response from Gemini]";
-      output.textContent = reply;
-    } catch (err) {
-      output.textContent = "[error] Something went wrong.\n" + err;
-    }
-  }
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    // Add user's message
+    chatLog.innerHTML += `<p><strong>You:</strong> ${userText}</p>`;
+    input.value = '';
+
+    fetch('http://159.203.71.132:3000/proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [{ text: userText }]
+          }
+        ]
+      })
+    })
+            .then(res => res.json())
+            .then(data => {
+              const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+              chatLog.innerHTML += `<p><strong>Gemini:</strong> ${reply}</p>`;
+            })
+            .catch(err => {
+              chatLog.innerHTML += `<p><strong>Error:</strong> ${err}</p>`;
+            });
+  });
 </script>
 </body>
 </html>
